@@ -1,0 +1,10 @@
+{
+  "weights": {
+    "winter.csv": 90,
+    "spring.csv": 88,
+    "summer.csv": 62,
+    "summer_peak.csv": 30,
+    "autumn.csv": 81,
+    "windless.csv": 14
+  }
+}

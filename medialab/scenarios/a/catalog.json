@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "pv100",
+      "type": "PV",
+      "size": 100,
+      "capex": 90000,
+      "life": 25
+    },
+    {
+      "id": "pv200",
+      "type": "PV",
+      "size": 200,
+      "capex": 170000,
+      "life": 25
+    },
+    {
+      "id": "w150",
+      "type": "WIND",
+      "size": 150,
+      "capex": 240000,
+      "life": 20,
+      "cutin": 3.0,
+      "rated": 12.0,
+      "cutout": 25.0
+    },
+    {
+      "id": "b300",
+      "type": "BATTERY",
+      "size": 300,
+      "capex": 120000,
+      "life": 12,
+      "pmax": 150,
+      "eff": 0.9,
+      "soc_min": 0.1,
+      "soc_max": 0.95
+    }
+  ]
+}
