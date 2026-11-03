@@ -30,8 +30,18 @@ energy-island/
 ├── WORKLOG.md                  ← this file
 ├── CLAUDE.md                   ← instructions for Claude Code sessions
 ├── .gitignore
+├── pom.xml                     ← Maven build (JavaFX 25.0.5, Gson 2.15.0, Java 25)
 ├── docs/
 │   └── course-material/        ← brief PDF + scenario guide (read-only reference)
+├── src/main/
+│   ├── java/gr/ntua/medialab/energyisland/
+│   │   ├── App.java            ← JavaFX entry point (window "MediaLab Energy Island")
+│   │   ├── model/              ← grid, terrain, units, catalog, plans
+│   │   ├── simulation/         ← hourly simulation + controller
+│   │   ├── optimizer/          ← exhaustive (with pruning) + heuristic search
+│   │   ├── io/                 ← scenario loading/validation, plan/result JSON (Gson)
+│   │   └── ui/                 ← JavaFX views
+│   └── resources/              ← icons, CSS (empty for now)
 └── medialab/                   ← required app data folder (per brief, A.2)
     ├── scenarios/
     │   ├── a/                  ← sample scenario (4 days)
@@ -39,7 +49,13 @@ energy-island/
     └── results/                ← saved plans & optimisation results (app output)
 ```
 
-Source code is not created yet.
+### How to build and run
+
+```bash
+mvn compile        # compile
+mvn javafx:run     # run the app (from the project root, so medialab/ is found)
+mvn package        # build target/energy-island-0.1.0-SNAPSHOT.jar
+```
 
 ## Environment
 
@@ -49,7 +65,7 @@ Source code is not created yet.
 | Java runtime | OpenJDK 25.0.4.1 ✅ |
 | `javac` (JDK) | ✅ 25.0.4.1 (`openjdk-25-jdk`, `/usr/lib/jvm/java-25-openjdk-amd64`) |
 | Maven | ✅ 3.9.12 (`/usr/share/maven`, uses JDK 25) |
-| JavaFX | ⏳ comes through Maven; planned `org.openjfx:javafx-controls:25.0.5` to match JDK 25 |
+| JavaFX | ✅ 25.0.5 through Maven (`org.openjfx:javafx-controls`) |
 | Git | 2.53.0 ✅ |
 | Editor | VS Code 1.142.0 ✅ |
 
@@ -115,3 +131,27 @@ Source code is not created yet.
 
 **Status**
 - Workspace and toolchain are ready. Next step: create the Maven project (not started yet).
+
+### 2026-11-03: Maven project created
+
+**Done**
+- Created `pom.xml`:
+  - coordinates `gr.ntua.medialab:energy-island:0.1.0-SNAPSHOT`, Java release 25, UTF-8
+  - dependencies: `javafx-controls 25.0.5` and `gson 2.15.0` (nothing else, per the brief)
+  - plugins: `maven-compiler-plugin 3.16.0`, `maven-jar-plugin 3.5.1`, `javafx-maven-plugin 0.0.8` (main class `gr.ntua.medialab.energyisland.App`)
+- Created the base package `gr.ntua.medialab.energyisland` with:
+  - `App.java`: a minimal JavaFX window titled "MediaLab Energy Island", 1280×800, holding a placeholder label
+  - sub-packages `model`, `simulation`, `optimizer`, `io`, `ui`, each with a `package-info.java` describing its role
+- Created an empty `src/main/resources/`.
+
+**Checked**
+- `mvn compile` succeeds.
+- `mvn javafx:run` starts the window with no errors (stopped after 12 s).
+
+**Decisions / notes**
+- No JUnit or other test library added, because the brief allows only Java SE + JavaFX + one JSON library. Tests, if any, will use plain Java.
+- Not using `module-info.java` (classpath app) to avoid Gson reflection/`opens` complications. Can revisit.
+- The `sun.misc.Unsafe` warnings during builds come from Maven's own bundled Guava and are harmless.
+
+**Next**
+- Design the model classes from the scenario guide (`island.json`, `catalog.json`, `days/`).
