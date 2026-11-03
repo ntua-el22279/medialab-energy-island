@@ -23,6 +23,10 @@ and where, so the island has power all year at the lowest annual cost, within bu
 Full brief: `docs/course-material/multimedia_project_26-27_v1.pdf`
 Scenario file format (binding): `docs/course-material/ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md`
 
+## Repository
+
+GitHub (private): https://github.com/ntua-el22279/medialab-energy-island, branch `main`.
+
 ## Workspace layout
 
 ```
@@ -75,6 +79,7 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 | Maven | ✅ 3.9.12 (`/usr/share/maven`, uses JDK 25) |
 | JavaFX | ✅ 25.0.5 through Maven (`org.openjfx:javafx-controls`) |
 | Git | 2.53.0 ✅ |
+| GitHub CLI | `gh` 2.74.0, logged in as `ntua-el22279` ✅ |
 | Editor | VS Code 1.142.0 ✅ |
 
 ## Open items / decisions pending
@@ -220,3 +225,12 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 
 **Next**
 - Simulation: hourly controller, energy balance, battery state, diesel starts, per-day and annual cost.
+
+### 2026-11-03: Uploaded to GitHub
+
+**Done**
+- The user logged in with `gh auth login` (account `ntua-el22279`, HTTPS).
+- Created the **private** repository `ntua-el22279/medialab-energy-island` and pushed `main` with all commits (remote `origin`).
+
+**Decisions**
+- Private, because it is graded coursework and contains the course brief PDF and the scenario guide.
