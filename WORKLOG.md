@@ -48,15 +48,15 @@ Source code is not created yet.
 | OS | Linux (kernel 7.0.0) |
 | Java runtime | OpenJDK 25.0.4.1 ✅ |
 | `javac` (JDK) | ✅ 25.0.4.1 (`openjdk-25-jdk`, `/usr/lib/jvm/java-25-openjdk-amd64`) |
-| Maven / Gradle | ❌ not found |
-| JavaFX SDK | ❌ not found |
+| Maven | ✅ 3.9.12 (`/usr/share/maven`, uses JDK 25) |
+| JavaFX | ⏳ not installed system-wide; Maven will download it as a dependency |
 | Git | 2.53.0 ✅ |
 | Editor | VS Code 1.142.0 ✅ |
 
 ## Open items / decisions pending
 
 - [x] Install a full JDK: `openjdk-25-jdk` (2026-11-03)
-- [ ] Choose build tool (Maven or Gradle), which also pulls JavaFX as a dependency
+- [x] Build tool: **Maven** 3.9.12 (2026-11-03); JavaFX will come through Maven
 - [ ] Choose the one allowed JSON library (e.g. Gson, Jackson, org.json)
 - [ ] Define the JSON schema for saved plans/results in `medialab/results/`
 - [ ] Decide heuristic optimisation method (e.g. greedy + local search)
@@ -91,3 +91,13 @@ Source code is not created yet.
 
 **Next**
 - Choose and install a build tool (Maven or Gradle) and choose the JSON library.
+
+### 2026-11-03: Maven installed
+
+**Done**
+- The user ran `sudo apt install maven`.
+- Checked: Apache Maven 3.9.12 at `/usr/share/maven`, running on JDK 25.0.4.1.
+- Decided JavaFX will be a Maven dependency (no system-wide SDK needed).
+
+**Next**
+- Choose the JSON library (suggested: Gson).
