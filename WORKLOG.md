@@ -234,3 +234,8 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 
 **Decisions**
 - Private, because it is graded coursework and contains the course brief PDF and the scenario guide.
+
+**Problems hit**
+- `gh repo create --push` created the repo but could not push: snap-packaged `gh` runs its own git, which has no HTTPS helper (`git: 'remote-https' is not a git command`).
+- `gh auth setup-git` did not write the real `~/.gitconfig`, because of snap confinement.
+- Fix: set a **repo-local** credential helper (`git config --local credential.https://github.com.helper '!/snap/bin/gh auth git-credential'`), then `git push -u origin main` with system git. The global git config was not changed.
