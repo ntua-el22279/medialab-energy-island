@@ -47,7 +47,7 @@ Source code is not created yet.
 |---|---|
 | OS | Linux (kernel 7.0.0) |
 | Java runtime | OpenJDK 25.0.4.1 ✅ |
-| `javac` (JDK) | ❌ not found: only a JRE is installed |
+| `javac` (JDK) | ✅ 25.0.4.1 (`openjdk-25-jdk`, `/usr/lib/jvm/java-25-openjdk-amd64`) |
 | Maven / Gradle | ❌ not found |
 | JavaFX SDK | ❌ not found |
 | Git | 2.53.0 ✅ |
@@ -55,7 +55,7 @@ Source code is not created yet.
 
 ## Open items / decisions pending
 
-- [ ] Install a full JDK (e.g. `sudo apt install openjdk-25-jdk` or `openjdk-21-jdk`)
+- [x] Install a full JDK: `openjdk-25-jdk` (2026-11-03)
 - [ ] Choose build tool (Maven or Gradle), which also pulls JavaFX as a dependency
 - [ ] Choose the one allowed JSON library (e.g. Gson, Jackson, org.json)
 - [ ] Define the JSON schema for saved plans/results in `medialab/results/`
@@ -81,3 +81,13 @@ Source code is not created yet.
 **Notes**
 - The originals in `~/Projects/` (`medialab/`, the zip, the PDF) were left untouched.
 - No source code created, by request.
+
+### 2026-11-03: JDK installed
+
+**Done**
+- The user ran `sudo apt install openjdk-25-jdk`.
+- Checked: `javac 25.0.4.1` and `java 25.0.4.1`, at `/usr/lib/jvm/java-25-openjdk-amd64`.
+- Updated the *Environment* table and *Open items*.
+
+**Next**
+- Choose and install a build tool (Maven or Gradle) and choose the JSON library.
