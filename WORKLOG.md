@@ -49,7 +49,7 @@ Source code is not created yet.
 | Java runtime | OpenJDK 25.0.4.1 ✅ |
 | `javac` (JDK) | ✅ 25.0.4.1 (`openjdk-25-jdk`, `/usr/lib/jvm/java-25-openjdk-amd64`) |
 | Maven | ✅ 3.9.12 (`/usr/share/maven`, uses JDK 25) |
-| JavaFX | ⏳ not installed system-wide; Maven will download it as a dependency |
+| JavaFX | ⏳ comes through Maven; planned `org.openjfx:javafx-controls:25.0.5` to match JDK 25 |
 | Git | 2.53.0 ✅ |
 | Editor | VS Code 1.142.0 ✅ |
 
@@ -57,7 +57,7 @@ Source code is not created yet.
 
 - [x] Install a full JDK: `openjdk-25-jdk` (2026-11-03)
 - [x] Build tool: **Maven** 3.9.12 (2026-11-03); JavaFX will come through Maven
-- [ ] Choose the one allowed JSON library (e.g. Gson, Jackson, org.json)
+- [x] JSON library: **Gson** (`com.google.code.gson:gson:2.15.0`) (2026-11-03)
 - [ ] Define the JSON schema for saved plans/results in `medialab/results/`
 - [ ] Decide heuristic optimisation method (e.g. greedy + local search)
 
@@ -101,3 +101,17 @@ Source code is not created yet.
 
 **Next**
 - Choose the JSON library (suggested: Gson).
+
+### 2026-11-03: JSON library chosen
+
+**Done**
+- Decided: **Gson** is the single allowed JSON library (small, maps JSON straight to Java classes).
+- Looked up current versions on Maven Central:
+  - Gson: latest release `2.15.0`
+  - JavaFX: latest stable `27.0.1`; latest `25.x` is `25.0.5`
+- Planned dependencies for the future `pom.xml`:
+  - `com.google.code.gson:gson:2.15.0`
+  - `org.openjfx:javafx-controls:25.0.5`, chosen to match the installed JDK 25, since newer JavaFX lines may need a newer JDK
+
+**Status**
+- Workspace and toolchain are ready. Next step: create the Maven project (not started yet).
