@@ -25,7 +25,7 @@ Scenario file format (binding): `docs/course-material/ΟΔΗΓΟΣ_ΣΕΝΑΡΙ�
 
 ## Repository
 
-GitHub (private): https://github.com/ntua-el22279/medialab-energy-island, branch `main`.
+GitHub (**public**): https://github.com/ntua-el22279/medialab-energy-island, branch `main`.
 
 ## Workspace layout
 
@@ -239,3 +239,11 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 - `gh repo create --push` created the repo but could not push: snap-packaged `gh` runs its own git, which has no HTTPS helper (`git: 'remote-https' is not a git command`).
 - `gh auth setup-git` did not write the real `~/.gitconfig`, because of snap confinement.
 - Fix: set a **repo-local** credential helper (`git config --local credential.https://github.com.helper '!/snap/bin/gh auth git-credential'`), then `git push -u origin main` with system git. The global git config was not changed.
+
+### 2026-11-03: Repository made public
+
+**Done**
+- At the user's request, changed `ntua-el22279/medialab-energy-island` from private to **public** (`gh repo edit --visibility public`).
+
+**Notes**
+- The user chose to publish the repository as it is, including `docs/course-material/` (course brief PDF and scenario guide), after being told they would become public and the solution could be copied.
