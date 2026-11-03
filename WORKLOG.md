@@ -32,11 +32,13 @@ energy-island/
 ├── .gitignore
 ├── pom.xml                     ← Maven build (JavaFX 25.0.5, Gson 2.15.0, Java 25)
 ├── docs/
-│   └── course-material/        ← brief PDF + scenario guide (read-only reference)
+│   ├── course-material/        ← brief PDF + scenario guide (read-only reference)
+│   └── design/
+│       └── model.md            ← model class design
 ├── src/main/
 │   ├── java/gr/ntua/medialab/energyisland/
 │   │   ├── App.java            ← JavaFX entry point (window "MediaLab Energy Island")
-│   │   ├── model/              ← grid, terrain, units, catalog, plans
+│   │   ├── model/              ← grid, terrain, units, catalog, days, plans (implemented)
 │   │   ├── simulation/         ← hourly simulation + controller
 │   │   ├── optimizer/          ← exhaustive (with pruning) + heuristic search
 │   │   ├── io/                 ← scenario loading/validation, plan/result JSON (Gson)
@@ -76,6 +78,7 @@ mvn package        # build target/energy-island-0.1.0-SNAPSHOT.jar
 - [x] JSON library: **Gson** (`com.google.code.gson:gson:2.15.0`) (2026-11-03)
 - [ ] Define the JSON schema for saved plans/results in `medialab/results/`
 - [ ] Decide heuristic optimisation method (e.g. greedy + local search)
+- [ ] Battery start at 50 % when `soc_min > 0.5` or `soc_max < 0.5`: keep or clamp? (see `docs/design/model.md`)
 
 ---
 
@@ -155,3 +158,28 @@ mvn package        # build target/energy-island-0.1.0-SNAPSHOT.jar
 
 **Next**
 - Design the model classes from the scenario guide (`island.json`, `catalog.json`, `days/`).
+
+### 2026-11-03: Model classes designed and implemented
+
+**Done**
+- Read the full scenario guide and both sample scenarios.
+- Wrote `docs/design/model.md` (principles, class diagram, file-to-class mapping, formulas, open questions).
+- Implemented the `model` package (16 types):
+  - enums `Terrain` (with map symbols) and `TechType`; record `Position`
+  - `PlacedElement` (sealed) → `Unit` (sealed) → `DieselPlant`, `Load`; and `Site`
+  - `CatalogItem` (sealed) → `PvItem`, `WindItem`, `BatteryItem`; `Catalog`
+  - `DayProfile` (24 h solar, wind, load profiles, weight); `Island` (mutable, editor-friendly); `Scenario`; `Plan` (site id → item id)
+- Put the guide §6 formulas in the model: load demand, PV output, wind curve plus mountain ×1.15, battery limits, `capex/life`.
+
+**Checked**
+- `mvn compile` succeeds.
+- jshell checks against the guide: load 0.35×0.80 = 280 kW; wind curve 0 below cut-in, 34.82 kW at 7.5 m/s, 150 kW from rated up to cut-out, 0 at cut-out; mountain 10 → 11.5 m/s; plan investment and annual cost are correct.
+
+**Decisions**
+- No Gson annotations in the model. `io` will use DTOs and convert them.
+- Constructors do not check value ranges or placement, because the editor must be able to hold and highlight invalid states. A separate validator will report them.
+- Records for units, sites and items; `Island` is the only mutable class (edits replace records).
+- `Plan` stores ids, so saved plans can be checked against a changed island.
+
+**Next**
+- Validation (guide §7) and scenario loading in `io` (DTOs + Gson + CSV).
