@@ -34,16 +34,21 @@ energy-island/
 ├── docs/
 │   ├── course-material/        ← brief PDF + scenario guide (read-only reference)
 │   └── design/
-│       └── model.md            ← model class design
+│       ├── model.md            ← model class design
+│       └── validation-and-loading.md ← loader + validation design, §7 check table
 ├── src/main/
 │   ├── java/gr/ntua/medialab/energyisland/
 │   │   ├── App.java            ← JavaFX entry point (window "MediaLab Energy Island")
 │   │   ├── model/              ← grid, terrain, units, catalog, days, plans (implemented)
 │   │   ├── simulation/         ← hourly simulation + controller
 │   │   ├── optimizer/          ← exhaustive (with pruning) + heuristic search
-│   │   ├── io/                 ← scenario loading/validation, plan/result JSON (Gson)
+│   │   ├── validation/         ← ValidationIssue, IslandValidator, CatalogValidator (implemented)
+│   │   ├── io/                 ← scenario loading (implemented), plan/result JSON (later)
 │   │   └── ui/                 ← JavaFX views
 │   └── resources/              ← icons, CSS (empty for now)
+├── tools/
+│   ├── check-validation.sh     ← runs the validation regression check
+│   └── validation-check.jsh    ← 50 cases: valid samples + one-fault-each copies
 └── medialab/                   ← required app data folder (per brief, A.2)
     ├── scenarios/
     │   ├── a/                  ← sample scenario (4 days)
@@ -57,6 +62,7 @@ energy-island/
 mvn compile        # compile
 mvn javafx:run     # run the app (from the project root, so medialab/ is found)
 mvn package        # build target/energy-island-0.1.0-SNAPSHOT.jar
+tools/check-validation.sh   # scenario validation regression check (expects "50 passed, 0 failed")
 ```
 
 ## Environment
@@ -183,3 +189,34 @@ mvn package        # build target/energy-island-0.1.0-SNAPSHOT.jar
 
 **Next**
 - Validation (guide §7) and scenario loading in `io` (DTOs + Gson + CSV).
+
+### 2026-11-03: Validation and scenario loading
+
+**Done**
+- New package `validation`:
+  - `ValidationIssue(file, element, message)`
+  - `IslandValidator`: grid bounds, placement rules, unique ids, one diesel, empty `allowed`, ranges, load categories in every CSV
+  - `CatalogValidator`: item ranges
+- `io` package:
+  - `ScenarioLoader` (public entry point) and `InvalidScenarioException` (carries all issues)
+  - `MediaLabWorkspace` (paths for `medialab/`, `scenarios/`, `results/`; lists scenario ids)
+  - package-private readers `JsonFiles` (UTF-8 + strict JSON), `JsonFields` (typed field getters), `IslandJson`, `CatalogJson`, `DayFiles` (weights + CSV)
+- Wrote `docs/design/validation-and-loading.md`: flow, table mapping each guide §7 check to code, assumptions.
+- Updated `docs/design/model.md`: the loader uses Gson's tree API, not DTOs.
+- Added `tools/check-validation.sh` + `tools/validation-check.jsh` (jshell regression check, no JUnit).
+
+**Checked**
+- `tools/check-validation.sh`: **50 passed, 0 failed**. Samples `a` and `b` load (`a`: 6 sites, 4 items, 4 days; `b`: 8 sites, 5 items, 6 days; both weight 365). All 11 categories of §7 are caught with clear messages.
+
+**Decisions**
+- Gson tree API instead of data binding, so missing fields and wrong types are reported instead of silently set to 0.
+- All issues from all files are collected, then reported together.
+- Model-level rules live in `validation`, so the editor can reuse them live.
+- Assumptions (BOM, CRLF, blank lines, number format, ignored columns, path safety) are listed in the design doc.
+
+**Problems hit**
+- `System.exit` inside a jshell script only ends the execution engine, so jshell waited on stdin and the first run hung. Fixed by using `/exit <code>` and `< /dev/null`.
+- One test case was wrong: it moved the diesel plant onto land, not a settlement. The loader was right; the test was fixed.
+
+**Next**
+- Simulation: hourly controller, energy balance, battery state, diesel starts, per-day and annual cost.

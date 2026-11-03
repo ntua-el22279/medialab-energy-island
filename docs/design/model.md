@@ -5,9 +5,10 @@ JSON, files, or JavaFX.
 
 ## Principles
 
-1. **No Gson in the model.** The `io` layer will read JSON into its own DTO classes, check them,
-   and build the model from them. This keeps field names (`soc_min`, `fuel`, ...) out of the domain
-   and lets validation collect *all* errors instead of failing on the first.
+1. **No Gson in the model.** The `io` layer reads JSON with Gson's tree API (`JsonObject`), checks
+   every field, and builds the model from it. This keeps field names (`soc_min`, `fuel`, ...) out of
+   the domain and lets validation collect *all* errors instead of failing on the first.
+   See `validation-and-loading.md`.
 2. **Invalid states can be represented.** The editor must show invalid elements on the map
    (element on sea, two elements on one cell, `pmin > pmax`, ...). So constructors do not
    check value ranges or placement rules. A separate validator, still to be written, does that and
@@ -91,8 +92,7 @@ mountain 10 → 11.5 m/s, and plan investment and annualised cost.
 
 ## Not in the model (later steps)
 
-- **Validation** (guide §7): a validator returning a list of issues (file, element id or CSV line, message).
-  The loader will use it on files, and the editor will use it live on an `Island`.
+- **Validation** (guide §7): done, see `validation-and-loading.md`.
 - **Simulation** (`simulation` package): battery state while running, the hourly controller,
   energy balance, per-hour and per-day results, annual cost.
 - **Optimiser encoding**: the optimiser will probably use an `int[]` (option index per site)
