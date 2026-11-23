@@ -84,7 +84,8 @@ classDiagram
 | Load demand = `scale × profile × 1000` kW | `Load.demandKw` |
 | PV output = `size × solar` | `PvItem.outputKw` |
 | Wind: ×1.15 on mountain, then the cubic curve between `cutin` and `rated`, `size` up to `cutout`, 0 otherwise | `WindItem.effectiveSpeed`, `WindItem.outputKw` |
-| Battery start at 50 %, limits `soc_min × size` … `soc_max × size` | `BatteryItem.initialEnergy/minEnergy/maxEnergy` |
+| Battery start `min(max(0.5, soc_min), soc_max) × size` (v2: clamped), limits `soc_min × size` … `soc_max × size` | `BatteryItem.initialEnergy/minEnergy/maxEnergy` |
+| Diesel daily cost `fuel·E + start·S + λ·co2·E`, λ = 0.08 €/kg CO₂ fixed (v2) | `DieselPlant.CARBON_PRICE`, `emissionsKg`, `dailyCost` |
 | Annualised investment `capex / life` | `CatalogItem.annualizedCapex`, `Plan.annualizedInvestment` |
 
 Checked with jshell (2026-11-03): load 0.35 × 0.80 → 280 kW, wind curve edges (cut-in, rated, cut-out),
@@ -94,11 +95,17 @@ mountain 10 → 11.5 m/s, and plan investment and annualised cost.
 
 - **Validation** (guide §7): done, see `validation-and-loading.md`.
 - **Simulation** (`simulation` package): battery state while running, the hourly controller,
-  energy balance, per-hour and per-day results, annual cost.
+  energy balance, per-hour and per-day results, annual cost. Rules fixed by brief v2:
+  - Net load `N = L − (P_PV + P_W)`. `D_max` = sum over batteries of `min(pmax, energy − soc_min·size)`.
+  - `N ≤ 0`: batteries charge with the surplus, the rest is curtailed, diesel off.
+  - `0 < N ≤ D_max`: batteries discharge to cover N, diesel off.
+  - `N > D_max`: diesel runs at `P_D = min(max(N − D_max, pmin), pmax)`; batteries cover only `N − P_D`
+    (discharge if positive, charge if negative); what cannot be stored is curtailed. Any remaining deficit is unserved energy.
+  - Annual cost `K = Σ I_i/T_i + Σ_d w_d · DieselPlant.dailyCost(E_D,d, S_d)`.
+  - RES share (informational, does not affect acceptance): `1 − Σ w_d·E_D,d / Σ w_d·L_d`.
 - **Optimiser encoding**: the optimiser will probably use an `int[]` (option index per site)
   internally for speed, and convert to `Plan` for results.
 
 ## Open questions
 
-- What if `soc_min > 0.5` or `soc_max < 0.5`? The guide says each day starts at 50 %, which would then
-  be outside the limits. Options: start at 50 % anyway, or clamp. To be decided with the simulation.
+- ~~What if `soc_min > 0.5` or `soc_max < 0.5`?~~ Resolved by brief v2 (2026-11-23): clamp to the nearest limit.

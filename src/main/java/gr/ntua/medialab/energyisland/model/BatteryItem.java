@@ -18,7 +18,7 @@ public record BatteryItem(String id, double size, double capex, double life,
                           double pmax, double efficiency, double socMin, double socMax)
         implements CatalogItem {
 
-    /** State of charge at the start of every simulated day. */
+    /** Nominal state of charge at the start of every simulated day (before clamping). */
     public static final double INITIAL_SOC = 0.5;
 
     @Override
@@ -45,11 +45,12 @@ public record BatteryItem(String id, double size, double capex, double life,
     }
 
     /**
-     * Returns the stored energy at the start of each day.
+     * Returns the stored energy at the start of each day: 50 % of capacity, clamped to
+     * the nearest limit when 50 % lies outside {@code [socMin, socMax]} (brief v2).
      *
-     * @return {@code 0.5 x size}, kWh
+     * @return {@code min(max(0.5, socMin), socMax) x size}, kWh
      */
     public double initialEnergy() {
-        return INITIAL_SOC * size;
+        return Math.min(Math.max(INITIAL_SOC, socMin), socMax) * size;
     }
 }

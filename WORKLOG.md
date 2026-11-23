@@ -20,8 +20,8 @@ and where, so the island has power all year at the lowest annual cost, within bu
 | A.3 GUI | 30% | JavaFX window "MediaLab Energy Island": map, editor, simulation playback, optimisation progress, top-10 results, menus |
 | A.4 Other | 20% | OOP design, Javadoc on every public method of one class, only Java SE + JavaFX + one JSON library |
 
-Full brief: `docs/course-material/multimedia_project_26-27_v1.pdf`
-Scenario file format (binding): `docs/course-material/ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md`
+Full brief (**v2**, 2026-11-23): `docs/course-material/V2/multimedia_project_26-27_v2.pdf` (v1 kept in `Old_V1/`)
+Scenario file format (binding, v2): `docs/course-material/ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md`
 
 ## Repository
 
@@ -36,7 +36,10 @@ energy-island/
 ├── .gitignore
 ├── pom.xml                     ← Maven build (JavaFX 25.0.5, Gson 2.15.0, Java 25)
 ├── docs/
-│   ├── course-material/        ← brief PDF + scenario guide (read-only reference)
+│   ├── course-material/        ← read-only reference
+│   │   ├── ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md   ← current scenario guide (= V2 copy)
+│   │   ├── V2/                 ← brief v2 PDF, guide v2, medialab_scenarios_v2.zip
+│   │   └── Old_V1/             ← brief v1 PDF, guide v1 (history)
 │   └── design/
 │       ├── model.md            ← model class design
 │       └── validation-and-loading.md ← loader + validation design, §7 check table
@@ -89,7 +92,7 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 - [x] JSON library: **Gson** (`com.google.code.gson:gson:2.15.0`) (2026-11-03)
 - [ ] Define the JSON schema for saved plans/results in `medialab/results/`
 - [ ] Decide heuristic optimisation method (e.g. greedy + local search)
-- [ ] Battery start at 50 % when `soc_min > 0.5` or `soc_max < 0.5`: keep or clamp? (see `docs/design/model.md`)
+- [x] Battery start at 50 % when `soc_min > 0.5` or `soc_max < 0.5`: **clamp**, settled by brief v2 (2026-11-23)
 
 ---
 
@@ -247,3 +250,26 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 
 **Notes**
 - The user chose to publish the repository as it is, including `docs/course-material/` (course brief PDF and scenario guide), after being told they would become public and the solution could be copied.
+
+### 2026-11-23: Brief v2 adopted
+
+**Done**
+- The professor posted v2 of the brief and `medialab_scenarios_v2.zip`. The user placed them in `docs/course-material/V2/` and moved v1 to `Old_V1/`.
+- Compared v2 with v1:
+  - Scenarios `a`, `b` in the zip are **identical** to `medialab/scenarios/` (no data change).
+  - The guide only gains 4 clarifications; validation rules and file format are unchanged.
+  - The brief marks the same 4 changes (bold italics + side bar).
+- Course material: archived the v1 guide to `Old_V1/ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md`, saved the v2 guide as `V2/ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md`, and replaced the current `ΟΔΗΓΟΣ_ΣΕΝΑΡΙΩΝ.md` with v2. The macOS junk in the zip (`__MACOSX`, `.DS_Store`) was not copied.
+- Applied the 4 changes:
+  1. **Carbon price** λ = 0.08 €/kg CO₂, fixed: `DieselPlant.CARBON_PRICE`, plus `emissionsKg(E)` and `dailyCost(E, starts) = fuel·E + start·S + λ·co2·E`.
+  2. **Diesel rule** (controller rules 2–3, using `D_max`): written into `docs/design/model.md` for the simulation step (no simulation code yet).
+  3. **RES share** `1 − Σw·E_D / Σw·L` (informational only): written into `docs/design/model.md`.
+  4. **Battery start** clamped: `BatteryItem.initialEnergy()` = `min(max(0.5, soc_min), soc_max) × size`. This resolves the open question.
+- Updated `CLAUDE.md` (reference material now points to v2), `docs/design/model.md` and this log.
+
+**Checked**
+- `mvn compile` succeeds; `tools/check-validation.sh`: **50 passed, 0 failed**.
+- jshell: battery start 500 / 600 / 400 kWh for `soc` limits [0.2,0.9] / [0.6,0.9] / [0.1,0.4] (size 1000); diesel 1000 kWh with 2 starts (fuel 0.32, co2 0.75, start 40) → 750 kg CO₂, €460.
+
+**Notes**
+- Both v1 and v2 (Note 2, p. 8) ask teams **not** to keep the project in a public Git repository during the submission period. The repository is currently public. Raised with the user.

@@ -15,6 +15,34 @@ package gr.ntua.medialab.energyisland.model;
 public record DieselPlant(String id, Position position, double pmin, double pmax,
                           double fuelCost, double co2, double startCost) implements Unit {
 
+    /**
+     * Carbon price λ, EUR per kg CO2. Fixed and the same for every scenario (brief v2);
+     * it is not read from the scenario files.
+     */
+    public static final double CARBON_PRICE = 0.08;
+
+    /**
+     * Returns the emissions for the given diesel energy.
+     *
+     * @param energyKwh energy produced by the plant, kWh
+     * @return {@code co2 x energyKwh}, kg CO2
+     */
+    public double emissionsKg(double energyKwh) {
+        return co2 * energyKwh;
+    }
+
+    /**
+     * Returns the operating cost of one day: fuel, starts and emissions priced at
+     * {@link #CARBON_PRICE}, that is {@code fuel·E + start·S + λ·co2·E}.
+     *
+     * @param energyKwh energy produced by the plant during the day, kWh
+     * @param starts    number of starts during the day
+     * @return daily operating cost, EUR
+     */
+    public double dailyCost(double energyKwh, int starts) {
+        return fuelCost * energyKwh + startCost * starts + CARBON_PRICE * emissionsKg(energyKwh);
+    }
+
     @Override
     public DieselPlant withPosition(Position newPosition) {
         return new DieselPlant(id, newPosition, pmin, pmax, fuelCost, co2, startCost);
