@@ -330,3 +330,5 @@ tools/check-simulation.sh   # simulation regression check (expects "24 passed, 0
 
 **Next**
 - Optimiser: exhaustive search with budget pruning, plus a heuristic.
+
+- Committed as `018a1a4` and pushed to GitHub.
