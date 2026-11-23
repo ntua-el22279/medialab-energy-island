@@ -273,3 +273,11 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 
 **Notes**
 - Both v1 and v2 (Note 2, p. 8) ask teams **not** to keep the project in a public Git repository during the submission period. The repository is currently public. Raised with the user.
+
+### 2026-11-23: v2 changes pushed
+
+**Done**
+- Committed the v2 adoption as `743694d` and pushed `main` to GitHub (`65a18e2..743694d`).
+
+**Notes**
+- The repository is still **public**. The user hasn't decided yet whether to make it private (brief Note 2, p. 8).
