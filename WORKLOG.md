@@ -42,20 +42,23 @@ energy-island/
 │   │   └── Old_V1/             ← brief v1 PDF, guide v1 (history)
 │   └── design/
 │       ├── model.md            ← model class design
-│       └── validation-and-loading.md ← loader + validation design, §7 check table
+│       ├── validation-and-loading.md ← loader + validation design, §7 check table
+│       └── simulation.md       ← simulator + controller design, checks
 ├── src/main/
 │   ├── java/gr/ntua/medialab/energyisland/
 │   │   ├── App.java            ← JavaFX entry point (window "MediaLab Energy Island")
 │   │   ├── model/              ← grid, terrain, units, catalog, days, plans (implemented)
-│   │   ├── simulation/         ← hourly simulation + controller
+│   │   ├── simulation/         ← hourly simulation + controller (implemented)
 │   │   ├── optimizer/          ← exhaustive (with pruning) + heuristic search
-│   │   ├── validation/         ← ValidationIssue, IslandValidator, CatalogValidator (implemented)
+│   │   ├── validation/         ← ValidationIssue, Island/Catalog/PlanValidator (implemented)
 │   │   ├── io/                 ← scenario loading (implemented), plan/result JSON (later)
 │   │   └── ui/                 ← JavaFX views
 │   └── resources/              ← icons, CSS (empty for now)
 ├── tools/
 │   ├── check-validation.sh     ← runs the validation regression check
-│   └── validation-check.jsh    ← 50 cases: valid samples + one-fault-each copies
+│   ├── validation-check.jsh    ← 50 cases: valid samples + one-fault-each copies
+│   ├── check-simulation.sh     ← runs the simulation regression check
+│   └── simulation-check.jsh    ← 24 cases: controller by hand, invariants, closed form
 └── medialab/                   ← required app data folder (per brief, A.2)
     ├── scenarios/
     │   ├── a/                  ← sample scenario (4 days)
@@ -70,6 +73,7 @@ mvn compile        # compile
 mvn javafx:run     # run the app (from the project root, so medialab/ is found)
 mvn package        # build target/energy-island-0.1.0-SNAPSHOT.jar
 tools/check-validation.sh   # scenario validation regression check (expects "50 passed, 0 failed")
+tools/check-simulation.sh   # simulation regression check (expects "24 passed, 0 failed")
 ```
 
 ## Environment
@@ -281,3 +285,48 @@ tools/check-validation.sh   # scenario validation regression check (expects "50 
 
 **Notes**
 - The repository is still **public**. The user hasn't decided yet whether to make it private (brief Note 2, p. 8).
+
+### 2026-11-23: Simulation implemented
+
+**Done**
+- `simulation` package:
+  - `Simulator`: snapshots the scenario and precomputes hourly demand; `simulate(Plan)` → `SimulationResult`
+  - `OperatingController`: rules 1–4 with the v2 `D_max` rule; batteries used in site order
+  - `BatteryState`: battery level and its limits
+  - records `Dispatch`, `HourResult`; enum `ControlRule`; classes `DayResult`, `SimulationResult`
+  - `InvalidPlanException`
+- `validation/PlanValidator`: unknown site, unknown item, technology not allowed at the site. The budget is not checked here; it only affects acceptance.
+- `SimulationResult` provides:
+  - the annual cost K, investment and annualised investment
+  - the operating cost
+  - the RES share
+  - weighted emissions, unserved and curtailed energy
+  - `isAccepted()`: within budget and no blackout
+- Hourly results keep the battery levels for each battery, ready for GUI playback and charts.
+- Wrote `docs/design/simulation.md`; `model.md` now points to it.
+- Added `tools/check-simulation.sh` + `tools/simulation-check.jsh`.
+
+**Checked**
+- `tools/check-simulation.sh`: **24 passed, 0 failed**. It covers:
+  - 13 hand-computed controller cases
+  - hourly invariants for 6 plans on `a` and `b`
+  - the empty-plan cost matching a closed-form formula for `a` and `b`
+  - 3 invalid plans
+- `tools/check-validation.sh`: still 50 passed, 0 failed.
+- Sample figures:
+  - `a`, nothing built: K = €876,688.17/yr, accepted
+  - `b`, nothing built: K = €1,896,188.47/yr, with blackouts (load above the diesel pmax), not accepted
+- Speed: 65,536 simulations of `b` take ≈ 1.8 s on one thread.
+
+**Decisions**
+- Rule comparisons are exact (no tolerance), to match other implementations. Only blackout detection uses a 1e-6 kWh tolerance, for floating-point rounding.
+- Plans over budget can still be simulated; they are just not accepted.
+
+**Problems hit**
+- Two test cases were wrong at first, not the simulator. The test helper could only lower a battery's level, and the "full battery" rule-3 case actually falls under rule 2. Both were fixed.
+
+**Notes**
+- The brief's RES share counts unserved energy as non-diesel (`b` empty plan shows 0.1 %). Kept as specified.
+
+**Next**
+- Optimiser: exhaustive search with budget pruning, plus a heuristic.

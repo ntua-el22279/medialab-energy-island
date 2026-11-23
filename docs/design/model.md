@@ -94,8 +94,7 @@ mountain 10 → 11.5 m/s, and plan investment and annualised cost.
 ## Not in the model (later steps)
 
 - **Validation** (guide §7): done, see `validation-and-loading.md`.
-- **Simulation** (`simulation` package): battery state while running, the hourly controller,
-  energy balance, per-hour and per-day results, annual cost. Rules fixed by brief v2:
+- **Simulation** (`simulation` package): implemented, see `simulation.md`. Rules fixed by brief v2:
   - Net load `N = L − (P_PV + P_W)`. `D_max` = sum over batteries of `min(pmax, energy − soc_min·size)`.
   - `N ≤ 0`: batteries charge with the surplus, the rest is curtailed, diesel off.
   - `0 < N ≤ D_max`: batteries discharge to cover N, diesel off.
